@@ -4,12 +4,10 @@ import {io} from "socket.io-client";
 import {Msg} from './Msg';
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [message, setMessage] = useState("");
-  const [password, setPassword] = useState("");
+  const message = document.getElementById("messageInput");
+  const password = document.getElementById("passwordInput");
   const [msgs, setMsgs] = useState([]);
   const [socket, setSocket] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const s = io();
@@ -21,51 +19,30 @@ function App() {
 
   useEffect(() => {
     if (!socket) return;
-    const callback = (newCount) => {
-      setCount(newCount);
-      if (loading) {
-        setLoading(false);
-      }
-    }
-    socket.on("new state", callback);
-    return () => {
-      socket.off("new state", callback);
-    }
-  }, [socket, loading]);
+    socket.on("new message", (msg) => {
+      setMsgs([...msgs, msg]);
+    });
+  }, [socket, msgs]);
 
   function sendMessage() {
     console.log("send message");
-    setMsgs([...msgs, {message, password}]);
-    setMessage("");
-    setPassword("");
-  }
-
-  function increment() {
-    socket.emit("increment");
-  }
-
-  function decrement() {
-    socket.emit("decrement");
+    socket.emit("new message", {message: message.value, password: password.value});
+    message.value = "";
+    password.value = "";
   }
 
   return (
     <>
-      <dialog id='dialog'>
-        <form>
-          <input id='dialog_password' type='text' placeholder='password'></input>
-          <button id='dialog_bttn' type='button'>Decrypt</button>
-        </form>
-      </dialog>
-      <div>
+      <div id="messages">
         {
           msgs.map((msg) => (
             <Msg key={msgs.indexOf(msg)} msg={msg}/>
           ))
         }
       </div>
-      <form className='message-form'>
-        <input type='text' onChange={e => setMessage(e.target.value)} placeholder='enter message'></input>
-        <input type='text' onChange={e => setPassword(e.target.value)} placeholder='enter password'></input>
+      <form>
+        <input id="messageInput" type='text' placeholder='enter message' />
+        <input id="passwordInput" type='text' placeholder='enter password' />
         <button type='button' onClick={sendMessage}>Send Message</button>
       </form>
     </>
