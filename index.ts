@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
   socket.on("new message", (msg) => {
     console.log("new message recieved");
     io.emit("new message", msg);
-    console.log("new message sent");
+    console.log(msg.password);
   });
 });
 

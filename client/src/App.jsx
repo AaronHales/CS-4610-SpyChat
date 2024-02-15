@@ -26,25 +26,33 @@ function App() {
 
   function sendMessage() {
     console.log("send message");
-    socket.emit("new message", {message: message.value, password: password.value});
+    if (password == "" || message == "") {
+      alert("please enter a message and password");
+    }
+    else {
+      socket.emit("new message", {message: message.value, password: password.value});
+    }
     message.value = "";
     password.value = "";
   }
 
   return (
     <>
+      <h3>messages</h3>
       <div id="messages">
         {
           msgs.map((msg) => (
-            <Msg key={msgs.indexOf(msg)} msg={msg}/>
+            <Msg key={Math.random(0, 1000000000)} msg={msg} onClick={e => console.log(e.target.value + " was clicked")}/>
           ))
         }
       </div>
-      <form>
-        <input id="messageInput" type='text' placeholder='enter message' />
-        <input id="passwordInput" type='text' placeholder='enter password' />
-        <button type='button' onClick={sendMessage}>Send Message</button>
-      </form>
+      <div>
+        <form>
+          <input id="messageInput" type='text' placeholder='enter message' />
+          <input id="passwordInput" type='text' placeholder='enter password' />
+          <button type='button' onClick={sendMessage}>Send Message</button>
+        </form>
+      </div>
     </>
   )
 }

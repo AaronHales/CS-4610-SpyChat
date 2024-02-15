@@ -2,35 +2,40 @@ import CryptoJS from "crypto-js";
 import { useEffect, useState } from "react";
 
 export const Msg = ({msg}) => {
-  const [message, setMessage] = useState({});
-  const [password, setPassword] = useState("");
+  const [messageMsg, setMessageMsg] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState("");
   // const encrypted = encryptMessage(msg.message, msg.password);
   const [isEncrypted, setIsEncrypted] = useState(false);
 
   useEffect(() => {
     if(!isEncrypted) {
-      setMessage(encryptMessage(msg.message, msg.password));
-      setPassword(msg.password);
+      setMessageMsg(encryptMessage(msg.message, msg.password));
+      setPasswordMsg(msg.password);
       setIsEncrypted(true);
     }
   }, [isEncrypted]);
 
 
+
+
   function msgClicked() {
+    console.log("msg.password: " + msg.password);
+    console.log(passwordMsg);
     const dialog = document.getElementById("dialogBox");
     const messageDiv = document.getElementById("messageDiv");
     messageDiv.disabled = true;
     dialog.showModal();
   }
   
-  function passwordSubmit() {
+  const passwordSubmit = () => {
+    console.log("msg.password: " + msg.password);
+    console.log("passwordMsg: " + passwordMsg);
     const dialogPassInput = document.getElementById("dialog_password");
     const dialog = document.getElementById("dialogBox");
-    if (dialogPassInput.value == password) {
+    if (dialogPassInput.value == msg.password) {
       // alert("Entered password is correct!");
       dialog.close();
-      console.log("Encrypted message: " + message);
-      setMessage(decryptMessage(message, password));
+      setMessageMsg(decryptMessage(messageMsg, msg.password).toString());
     }
     else {
       alert("Entered password is incorrect!");
@@ -40,20 +45,13 @@ export const Msg = ({msg}) => {
   }
 
   function encryptMessage(givenMessage, givenPassword) {
-    console.log("encrypt called");
-    console.log("message: " + givenMessage + ", password: " + givenPassword)
-    var encrypted = CryptoJS.DES.encrypt(givenMessage, givenPassword);
-    console.log("encrypted message: " + encrypted);
-    console.log(encrypted);
-    return encrypted;
+    var encrypted = CryptoJS.AES.encrypt(givenMessage, givenPassword);
+    return encrypted.toString();
   }
 
   function decryptMessage(givenMessage, givenPassword) {
-      console.log("word: " + givenMessage.toString() + ", pass: " + givenPassword);
-      var messageDecrypt = CryptoJS.DES.decrypt(givenMessage, givenPassword);
-      console.log(messageDecrypt);
-      console.log(messageDecrypt);
-      return messageDecrypt.toString();
+      var messageDecrypt = CryptoJS.AES.decrypt(givenMessage, givenPassword);
+      return messageDecrypt.toString(CryptoJS.enc.Utf8);
   }
 
     return (
@@ -65,7 +63,7 @@ export const Msg = ({msg}) => {
         </form>
       </dialog>
       <div id="messageDiv">
-        <p id="message" onClick={msgClicked}>{message.toString()}</p>
+        <p id="message" onClick={msgClicked}>{messageMsg}</p>
       </div>
     </>
     );
